@@ -1,9 +1,6 @@
 [submodule "vendor/TPF_cmake"]
 	path = vendor/TPF_cmake
 	url = https://github.com/tepachitos/TPF_cmake
-[submodule "vendor/TPF_arena"]
-	path = vendor/TPF_arena
-	url = https://github.com/tepachitos/TPF_arena
 [submodule "vendor/cmocka"]
 	path = vendor/cmocka
 	url = https://github.com/coreboot/cmocka.git

@@ -5,4 +5,3 @@ set(PICKY_DEVELOPER ON CACHE BOOL "Build with picky developer flags")
 add_subdirectory(cmocka)
 
 # Modules
-add_subdirectory(TPF_arena)
