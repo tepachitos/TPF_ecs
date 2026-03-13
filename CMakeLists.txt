@@ -24,21 +24,36 @@ if(PROJECT_IS_TOP_LEVEL)
 endif()
 
 # This module
-add_library(TPF_sparse_array STATIC)
+add_library(TPF_sparse_array OBJECT)
 target_sources(TPF_sparse_array PRIVATE sparse_array.c)
 target_link_libraries(TPF_sparse_array PRIVATE SDL3)
 
-add_library(TPF_ecs STATIC)
-target_sources(TPF_ecs PRIVATE ecs.c)
-target_link_libraries(TPF_ecs PRIVATE SDL3 TPF_arena TPF_sparse_array)
-target_include_directories(TPF_ecs PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_include_directories(TPF_ecs INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+add_library(TPF_dynamic_array OBJECT)
+target_sources(TPF_dynamic_array PRIVATE dynamic_array.c)
+target_link_libraries(TPF_dynamic_array PRIVATE SDL3)
+
+# add_library(TPF_component_table OBJECT)
+# target_sources(TPF_component_table PRIVATE component_table.c)
+# target_link_libraries(TPF_component_table PRIVATE SDL3)
+# target_include_directories(TPF_component_table PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+# add_library(TPF_ecs STATIC)
+# target_sources(TPF_ecs PRIVATE ecs.c)
+# target_link_libraries(TPF_ecs PRIVATE SDL3 TPF_arena TPF_sparse_array TPF_dynamic_array)
+# target_include_directories(TPF_ecs PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+# target_include_directories(TPF_ecs INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 # Unit testing
 if(TPF_ENABLE_TESTS)
   setup_test(NAME sparse_array LIBS SDL3::SDL3 TPF_sparse_array)
   add_memcheck_target(sparse_array_test)
 
-  setup_test(NAME ecs LIBS SDL3::SDL3 TPF_ecs)
-  add_memcheck_target(ecs_test)
+  setup_test(NAME dynamic_array LIBS SDL3::SDL3 TPF_dynamic_array)
+  add_memcheck_target(dynamic_array_test)
+
+  setup_test(NAME component_table LIBS SDL3::SDL3 TPF_component_table)
+  add_memcheck_target(component_table_test)
+
+  # setup_test(NAME ecs LIBS SDL3::SDL3 TPF_ecs)
+  # add_memcheck_target(ecs_test)
 endif()
