@@ -259,12 +259,13 @@ TPF_EntityID TPF_CreateEntity(TPF_World* world) {
     return recycled_entity_id;
   }
 
+  TPF_EntityID new_eid = ++world->last_eid;
   if (world->last_eid >= TPF_ECS_MAX_ENTITIES - 1) {
     SDL_SetError("max number of entities reached: %ld", world->last_eid);
+    world->last_eid--;
     return TPF_ECS_INVALID_EID;
   }
 
-  TPF_EntityID new_eid = ++world->last_eid;
   if (!sparse_array_set(world->entity_masks, new_eid, mask)) {
     SDL_SetError("could not register mask for entity: %ld", new_eid);
     world->last_eid--;

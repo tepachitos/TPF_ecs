@@ -36,12 +36,13 @@ add_library(TPF_component_table OBJECT)
 target_sources(TPF_component_table PRIVATE component_table.c)
 target_link_libraries(TPF_component_table PRIVATE SDL3)
 target_include_directories(TPF_component_table PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(TPF_component_table INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-# add_library(TPF_ecs STATIC)
-# target_sources(TPF_ecs PRIVATE ecs.c)
-# target_link_libraries(TPF_ecs PRIVATE SDL3 TPF_arena TPF_sparse_array TPF_dynamic_array)
-# target_include_directories(TPF_ecs PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-# target_include_directories(TPF_ecs INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+add_library(TPF_ecs STATIC)
+target_sources(TPF_ecs PRIVATE ecs.c)
+target_link_libraries(TPF_ecs PRIVATE SDL3::SDL3 TPF_sparse_array TPF_dynamic_array TPF_component_table)
+target_include_directories(TPF_ecs PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(TPF_ecs INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 # Unit testing
 if(TPF_ENABLE_TESTS)
@@ -55,6 +56,12 @@ if(TPF_ENABLE_TESTS)
   target_include_directories(component_table_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   add_memcheck_target(component_table_test)
 
-  # setup_test(NAME ecs LIBS SDL3::SDL3 TPF_ecs)
-  # add_memcheck_target(ecs_test)
+  setup_test(
+    ONLY_SOURCES
+    NAME ecs_tags
+    SOURCES ecs.c ecs_tags_test.c
+    LIBS SDL3::SDL3 TPF_ecs
+    INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  add_memcheck_target(ecs_tags_test)
 endif()
