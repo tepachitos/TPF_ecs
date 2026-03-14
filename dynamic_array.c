@@ -71,8 +71,8 @@ static bool align_up_checked(size_t n, size_t a, size_t* out) {
 struct dynamic_array* dynamic_array_new(size_t item_align,
                                         size_t item_size,
                                         size_t initial_cap) {
-  if (item_align == 0 || item_size == 0) {
-    SDL_assert(false && "item align and size cannot be zero");
+  if (item_size == 0) {
+    SDL_assert(false && "item size cannot be zero");
     return NULL;
   }
 

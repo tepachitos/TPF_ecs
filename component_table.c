@@ -90,28 +90,30 @@ bool component_table_configure(struct component_table* table,
   }
 
   component_table_reset(table);
-  table->dense = dynamic_array_new(config.item_align, config.item_size,
-                                   config.initial_slots);
-  if (table->dense == NULL) {
-    return false;
-  }
+  if (config.item_size > 0) {
+    table->dense = dynamic_array_new(config.item_align, config.item_size,
+                                     config.initial_slots);
+    if (table->dense == NULL) {
+      return false;
+    }
 
-  table->dense_entity_ids = dynamic_array_new(
-      _Alignof(TPF_EntityID), sizeof(TPF_EntityID), config.initial_slots);
-  if (table->dense_entity_ids == NULL) {
-    dynamic_array_destroy(table->dense);
-    table->dense = NULL;
-    return false;
-  }
+    table->dense_entity_ids = dynamic_array_new(
+        _Alignof(TPF_EntityID), sizeof(TPF_EntityID), config.initial_slots);
+    if (table->dense_entity_ids == NULL) {
+      dynamic_array_destroy(table->dense);
+      table->dense = NULL;
+      return false;
+    }
 
-  table->sparse = sparse_array_new();
-  if (table->sparse == NULL) {
-    dynamic_array_destroy(table->dense);
-    table->dense = NULL;
+    table->sparse = sparse_array_new();
+    if (table->sparse == NULL) {
+      dynamic_array_destroy(table->dense);
+      table->dense = NULL;
 
-    dynamic_array_destroy(table->dense_entity_ids);
-    table->dense_entity_ids = NULL;
-    return false;
+      dynamic_array_destroy(table->dense_entity_ids);
+      table->dense_entity_ids = NULL;
+      return false;
+    }
   }
 
   table->config = config;
