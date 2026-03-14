@@ -14,17 +14,17 @@ static size_t align_is_pow2(const size_t a) {
 }
 
 static bool is_config_valid(struct component_table_config config) {
-  if (config.item_size == 0) {
+  if (config.item_size == 0 && config.holds_data) {
     SDL_SetError("component_table requires item_size > 0");
     return false;
   }
 
-  if (config.item_align == 0) {
+  if (config.item_align == 0 && config.holds_data) {
     SDL_SetError("component_table requires item_align != 0");
     return false;
   }
 
-  if (!align_is_pow2(config.item_align)) {
+  if (!align_is_pow2(config.item_align) && config.holds_data) {
     SDL_SetError("component_table requires item_align to be power of 2");
     return false;
   }
@@ -118,15 +118,16 @@ bool component_table_configure(struct component_table* table,
   return true;
 }
 
-Uint8* component_table_get_slot(struct component_table* table,
-                                TPF_EntityID entity_id) {
+void* component_table_get_slot(struct component_table* table,
+                               TPF_EntityID entity_id) {
   SDL_assert_paranoid(table != NULL);
   SDL_assert_paranoid(entity_id != TPF_ECS_INVALID_EID);
   if (table == NULL || entity_id == TPF_ECS_INVALID_EID) {
     return NULL;
   }
 
-  if (table->dense == NULL || table->sparse == NULL) {
+  if (table->sparse == NULL || table->dense_entity_ids == NULL ||
+      table->dense == NULL) {
     return NULL;
   }
 
@@ -139,6 +140,29 @@ Uint8* component_table_get_slot(struct component_table* table,
   return dynamic_array_get(table->dense, index);
 }
 
+bool component_table_set_slot(struct component_table* table,
+                              TPF_EntityID entity_id,
+                              const void* data) {
+  SDL_assert_paranoid(table != NULL);
+  SDL_assert_paranoid(entity_id != TPF_ECS_INVALID_EID);
+  if (table == NULL || entity_id == TPF_ECS_INVALID_EID) {
+    return false;
+  }
+
+  if (table->sparse == NULL || table->dense_entity_ids == NULL ||
+      table->dense == NULL) {
+    return false;
+  }
+
+  size_t max_index = dynamic_array_len(table->dense);
+  size_t index = sparse_array_get(table->sparse, entity_id);
+  if (index == TPF_ECS_INVALID_INDEX || index >= max_index) {
+    return NULL;
+  }
+
+  return dynamic_array_set(table->dense, index, data);
+}
+
 bool component_table_add_slot(struct component_table* table,
                               TPF_EntityID entity_id) {
   SDL_assert_paranoid(table != NULL);
@@ -147,7 +171,8 @@ bool component_table_add_slot(struct component_table* table,
     return false;
   }
 
-  if (table->sparse == NULL || table->dense_entity_ids == NULL) {
+  if (table->sparse == NULL || table->dense_entity_ids == NULL ||
+      table->dense == NULL) {
     return false;
   }
 
@@ -163,7 +188,7 @@ bool component_table_add_slot(struct component_table* table,
     }
   }
 
-  if (!dynamic_array_push_back(table->dense_entity_ids, (Uint8*)&entity_id)) {
+  if (!dynamic_array_push_back(table->dense_entity_ids, &entity_id)) {
     if (table->dense != NULL) {
       dynamic_array_pop_back(table->dense);
     }
@@ -181,6 +206,40 @@ bool component_table_add_slot(struct component_table* table,
   return true;
 }
 
+bool component_table_copy_slot(struct component_table* table,
+                               TPF_EntityID from_entity_id,
+                               TPF_EntityID to_entity_id) {
+  SDL_assert_paranoid(table != NULL);
+  SDL_assert_paranoid(from_entity_id != TPF_ECS_INVALID_EID);
+  SDL_assert_paranoid(to_entity_id != TPF_ECS_INVALID_EID);
+  if (table == NULL || from_entity_id == TPF_ECS_INVALID_EID ||
+      to_entity_id == TPF_ECS_INVALID_EID) {
+    return false;
+  }
+
+  if (table->sparse == NULL || table->dense_entity_ids == NULL ||
+      table->dense == NULL) {
+    return false;
+  }
+
+  size_t from_idx = sparse_array_get(table->sparse, from_entity_id);
+  if (from_idx == TPF_ECS_INVALID_INDEX) {
+    return false;
+  }
+
+  size_t to_idx = sparse_array_get(table->sparse, to_entity_id);
+  if (from_idx == TPF_ECS_INVALID_INDEX) {
+    return false;
+  }
+
+  Uint8* data = dynamic_array_get(table->dense, from_idx);
+  if (data == NULL) {
+    return false;
+  }
+
+  return dynamic_array_set(table->dense, to_idx, data);
+}
+
 bool component_table_del_slot(struct component_table* table,
                               TPF_EntityID entity_id) {
   SDL_assert_paranoid(table != NULL);
@@ -189,7 +248,8 @@ bool component_table_del_slot(struct component_table* table,
     return false;
   }
 
-  if (table->sparse == NULL || table->dense_entity_ids == NULL) {
+  if (table->sparse == NULL || table->dense_entity_ids == NULL ||
+      table->dense == NULL) {
     return false;
   }
 
@@ -229,8 +289,7 @@ bool component_table_del_slot(struct component_table* table,
       }
     }
 
-    if (!dynamic_array_set(table->dense_entity_ids, del_index,
-                           (Uint8*)&last_entity)) {
+    if (!dynamic_array_set(table->dense_entity_ids, del_index, &last_entity)) {
       return false;
     }
 

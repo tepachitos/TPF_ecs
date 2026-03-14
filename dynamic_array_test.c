@@ -33,7 +33,7 @@ static void test_has_get_set_bounds(void** state) {
 
   assert_false(dynamic_array_has(da, 0));
   assert_null(dynamic_array_get(da, 0));
-  assert_false(dynamic_array_set(da, 0, (Uint8*)"abcdefghijkl"));
+  assert_false(dynamic_array_set(da, 0, "abcdefghijkl"));
 
   Uint8 v0[12];
   for (int i = 0; i < 12; i++)

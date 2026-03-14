@@ -151,7 +151,7 @@ bool dynamic_array_has(struct dynamic_array* da, size_t i) {
   return i < da->len;
 }
 
-Uint8* dynamic_array_get(struct dynamic_array* da, size_t i) {
+void* dynamic_array_get(struct dynamic_array* da, size_t i) {
   SDL_assert(da != NULL);
   if (da == NULL) {
     return NULL;
@@ -164,7 +164,7 @@ Uint8* dynamic_array_get(struct dynamic_array* da, size_t i) {
   return da->data + (i * da->stride);
 }
 
-bool dynamic_array_set(struct dynamic_array* da, size_t i, Uint8* v) {
+bool dynamic_array_set(struct dynamic_array* da, size_t i, const void* v) {
   SDL_assert(da != NULL);
   if (da == NULL) {
     return false;
@@ -184,7 +184,7 @@ bool dynamic_array_set(struct dynamic_array* da, size_t i, Uint8* v) {
   return true;
 }
 
-bool dynamic_array_push_back(struct dynamic_array* da, Uint8* v) {
+bool dynamic_array_push_back(struct dynamic_array* da, const void* v) {
   SDL_assert(da != NULL);
   if (da == NULL) {
     return false;
@@ -272,6 +272,23 @@ bool dynamic_array_pop_back(struct dynamic_array* da) {
   SDL_assert_paranoid(da->stride >= da->item_size);
   SDL_assert_paranoid((da->stride % da->item_align) == 0);
   return true;
+}
+
+void dynamic_array_clear(struct dynamic_array* da) {
+  SDL_assert(da != NULL);
+  if (da == NULL) {
+    return;
+  }
+
+  size_t bytes;
+  if (mul_overflow_size(da->stride, da->cap, &bytes)) {
+    SDL_assert(false && "reserve overflow");
+    return;
+  }
+
+  SDL_memset(da->data, 0, bytes);
+  da->len = 0;
+  return;
 }
 
 size_t dynamic_array_cap(struct dynamic_array* da) {

@@ -51,7 +51,7 @@ if(TPF_ENABLE_TESTS)
   setup_test(NAME dynamic_array LIBS SDL3::SDL3 TPF_dynamic_array)
   add_memcheck_target(dynamic_array_test)
 
-  setup_test(NAME component_table LIBS SDL3::SDL3 TPF_component_table TPF_sparse_array TPF_dynamic_array)
+  setup_test(NAME component_table LIBS SDL3::SDL3 TPF_sparse_array TPF_dynamic_array TPF_component_table)
   target_include_directories(component_table_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   add_memcheck_target(component_table_test)
 

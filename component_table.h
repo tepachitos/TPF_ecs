@@ -15,6 +15,7 @@ struct component_table_config {
   size_t item_align;
   size_t item_size;
   size_t initial_slots;
+  bool holds_data;
   char name[TPF_ECS_NAME_SIZE];
 };
 
@@ -29,10 +30,16 @@ struct component_table* component_table_new();
 void component_table_reset(struct component_table* table);
 bool component_table_configure(struct component_table* table,
                                struct component_table_config config);
-Uint8* component_table_get_slot(struct component_table* table,
-                                TPF_EntityID entity_id);
+void* component_table_get_slot(struct component_table* table,
+                               TPF_EntityID entity_id);
+bool component_table_set_slot(struct component_table* table,
+                              TPF_EntityID entity_id,
+                              const void* data);
 bool component_table_add_slot(struct component_table* table,
                               TPF_EntityID entity_id);
+bool component_table_copy_slot(struct component_table* table,
+                               TPF_EntityID from_entity_id,
+                               TPF_EntityID to_entity_id);
 bool component_table_del_slot(struct component_table* table,
                               TPF_EntityID entity_id);
 void component_table_destroy(struct component_table* table);

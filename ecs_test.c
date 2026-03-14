@@ -10,7 +10,6 @@
 
 static void test_dummy(void** state) {
   (void)state;
-  assert_int_equal(42, TPF_ECSHelloWorld());
 }
 
 int main(void) {
