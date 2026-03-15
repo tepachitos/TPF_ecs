@@ -6,6 +6,7 @@
 #include <SDL3/SDL_assert.h>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_stdinc.h>
+#include <stdarg.h>
 
 #include "component_table.h"
 #include "dynamic_array.h"
@@ -592,6 +593,23 @@ bool TPF_IsTag(const TPF_World* world, Uint8 id) {
   }
 
   return table->config.component_id == id && !table->config.holds_data;
+}
+
+TPF_ComponentMask TPF_MakeFilter(unsigned n, ...) {
+  SDL_assert_paranoid(n < TPF_ECS_MAX_COMPONENTS);
+  if (n >= TPF_ECS_MAX_COMPONENTS) {
+    return 0;
+  }
+
+  va_list va;
+  va_start(va, n);
+  TPF_ComponentMask mask = 0;
+  for (unsigned i = 0; i < n; i++) {
+    mask |= ((TPF_ComponentMask)1u << va_arg(va, TPF_ComponentMask));
+  }
+  va_end(va);
+
+  return mask;
 }
 
 TPF_EntityCursor* TPF_CreateEntityCursor(TPF_World* world, size_t cap) {

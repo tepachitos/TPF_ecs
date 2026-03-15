@@ -49,6 +49,7 @@ bool TPF_ToggleTag(TPF_World* world, TPF_EntityID eid, TPF_TagID tid);
 TPF_TagID TPF_GetAliveTag(const TPF_World* world);
 bool TPF_IsTag(const TPF_World* world, Uint8 cid);
 
+TPF_ComponentMask TPF_MakeFilter(unsigned n, ...);
 TPF_EntityCursor* TPF_CreateEntityCursor(TPF_World* world, size_t cap);
 size_t TPF_CursorGetCount(TPF_EntityCursor* cursor);
 TPF_EntityID TPF_CursorGetEntityID(TPF_EntityCursor* cursor, size_t index);

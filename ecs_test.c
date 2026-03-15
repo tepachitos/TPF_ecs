@@ -47,10 +47,6 @@ static int teardown_world(void** state) {
   return 0;
 }
 
-static TPF_ComponentMask bit_of(Uint8 id) {
-  return ((TPF_ComponentMask)1u << id);
-}
-
 static void test_ecs_example_of_use(void** state) {
   test_ctx* ctx = *state;
   TPF_World* world = ctx->world;
@@ -165,7 +161,7 @@ static void test_ecs_example_of_use(void** state) {
     TPF_EntityCursor* cursor = TPF_CreateEntityCursor(world, 16);
     assert_non_null(cursor);
 
-    TPF_ComponentMask filter = bit_of(position_cid) | bit_of(enemy_tid);
+    TPF_ComponentMask filter = TPF_MakeFilter(2, position_cid, enemy_tid);
     assert_true(TPF_ScanBegin(cursor, filter));
     assert_true(TPF_ScanNext(cursor));
 
@@ -200,7 +196,7 @@ static void test_ecs_example_of_use(void** state) {
     TPF_EntityCursor* cursor = TPF_CreateEntityCursor(world, 16);
     assert_non_null(cursor);
 
-    TPF_ComponentMask filter = bit_of(position_cid) | bit_of(enemy_tid);
+    TPF_ComponentMask filter = TPF_MakeFilter(2, position_cid, enemy_tid);
     assert_true(TPF_ScanBegin(cursor, filter));
     assert_true(TPF_ScanNext(cursor));
 
