@@ -73,4 +73,20 @@ if(TPF_ENABLE_TESTS)
     INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
   )
   add_memcheck_target(ecs_components_test)
+
+  setup_test(
+    ONLY_SOURCES
+    NAME ecs_scan
+    SOURCES ecs.c ecs_scan_test.c
+    LIBS SDL3::SDL3 TPF_ecs
+    INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  add_memcheck_target(ecs_scan_test)
+
+  setup_test(
+    NAME ecs
+    LIBS SDL3::SDL3 TPF_ecs
+    INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  add_memcheck_target(ecs_test)
 endif()

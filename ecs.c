@@ -249,8 +249,14 @@ TPF_EntityID TPF_CreateEntity(TPF_World* world) {
 
   TPF_ComponentMask mask = ((TPF_ComponentMask)1u << TPF_GetAliveTag(world));
   if (dynamic_array_len(world->removed_entities) > 0) {
+    size_t last_idx = dynamic_array_len(world->removed_entities) - 1;
     TPF_EntityID recycled_entity_id =
-        dynamic_array_pop_back(world->removed_entities);
+        *(TPF_EntityID*)dynamic_array_get(world->removed_entities, last_idx);
+    if (!dynamic_array_pop_back(world->removed_entities)) {
+      SDL_SetError("could not recycle entity: %ld", recycled_entity_id);
+      return TPF_ECS_INVALID_EID;
+    }
+
     if (!sparse_array_set(world->entity_masks, recycled_entity_id, mask)) {
       SDL_SetError("could not recycle entity: %ld", recycled_entity_id);
       return TPF_ECS_INVALID_EID;
@@ -350,6 +356,7 @@ bool TPF_DestroyEntity(TPF_World* world, TPF_EntityID entity_id) {
     TPF_DisableComponent(world, entity_id, cid);
   }
 
+  sparse_array_set(world->entity_masks, entity_id, 0);
   sparse_array_del(world->entity_masks, entity_id);
   return dynamic_array_push_back(world->removed_entities, &entity_id);
 }
@@ -662,6 +669,10 @@ bool TPF_ScanNext(TPF_EntityCursor* cursor) {
   TPF_EntityID cur_eid = cursor->last_scanned_eid;
   size_t cap = dynamic_array_cap(cursor->entities);
   size_t cursor_pos = 0;
+
+  if (world->last_eid == TPF_ECS_INVALID_EID) {
+    return false;
+  }
 
   dynamic_array_clear(cursor->entities);
   for (; cursor_pos < cap && cur_eid <= world->last_eid; cur_eid++) {
